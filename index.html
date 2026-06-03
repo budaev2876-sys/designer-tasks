@@ -297,28 +297,6 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 .outdoor-tag-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
 .outdoor-block-actions{display:flex;gap:8px;margin-top:10px}
 
-/* ── WIZARD ── */
-#task-wizard{position:fixed;inset:0;background:#fff;z-index:100;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1)}
-#task-wizard.wiz-open{transform:translateX(0)}
-.wiz-progress-track{height:3px;background:#e8eaed;flex-shrink:0}
-.wiz-progress-fill{height:100%;background:#1a73e8;transition:width .35s ease}
-.wiz-header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--border);flex-shrink:0;background:#fff}
-.wiz-back{background:none;color:var(--text-dim);font-size:14px;padding:7px 14px;border-radius:20px;border:1px solid var(--border);font-weight:500;display:inline-flex;align-items:center;gap:4px}
-.wiz-back:hover{background:var(--bg);color:var(--text)}
-.wiz-type-label{font-weight:600;font-size:15px;color:var(--text)}
-.wiz-body{flex:1;overflow:hidden;position:relative}
-.wiz-step{position:absolute;inset:0;overflow-y:auto;padding:0 24px 60px}
-.wiz-step-inner{max-width:600px;margin:0 auto;padding-top:44px}
-.wiz-step-meta{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:10px}
-.wiz-step-heading{font-size:24px;font-weight:700;letter-spacing:-.02em;margin-bottom:30px;color:var(--text)}
-.wiz-big-input{font-size:17px!important;padding:14px 16px!important;border-radius:10px!important;line-height:1.5!important}
-.wiz-foot{margin-top:30px;display:flex;gap:12px;align-items:center}
-.wiz-btn-next{padding:12px 30px!important;border-radius:24px!important;font-size:15px!important;font-weight:600!important}
-@keyframes wizInR{from{transform:translateX(52px);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes wizInL{from{transform:translateX(-52px);opacity:0}to{transform:translateX(0);opacity:1}}
-.wiz-anim-r{animation:wizInR .22s cubic-bezier(.4,0,.2,1) both}
-.wiz-anim-l{animation:wizInL .22s cubic-bezier(.4,0,.2,1) both}
-
 /* ── RESPONSIVE ── */
 @media(max-width:700px){
   .form-row,.form-row-3{grid-template-columns:1fr}
@@ -346,7 +324,7 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
     </div>
     <div class="role-card" data-role="client" onclick="pickRole('client')">
       <div class="role-icon">💼</div>
-      <div class="role-title">Постановщик задачи</div>
+      <div class="role-title">Заказчик</div>
       <div class="role-desc">Создаю задачи</div>
     </div>
   </div>
@@ -364,7 +342,7 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
       <div class="user-pill">
         <div class="avatar" id="c-av" style="background:var(--accent)">?</div>
         <span id="c-nm">—</span>
-        <span class="role-tag">· Постановщик задачи</span>
+        <span class="role-tag">· Заказчик</span>
       </div>
       <button class="btn-ghost btn-sm" onclick="logout()">Выйти</button>
     </div>
@@ -379,6 +357,48 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
   <div id="tab-create" class="tab-content">
     <div class="section-title">Новая задача</div>
     <div class="type-grid" id="type-grid"></div>
+    <div id="task-form" class="hidden">
+      <div class="form-card">
+        <div class="form-title" id="form-heading">Задача</div>
+        <div class="fg">
+          <label class="field-label">Название задачи</label>
+          <input id="f-title" type="text" placeholder="Кратко опишите задачу…">
+        </div>
+        <div id="dyn-fields"></div>
+        <div class="form-row-3">
+          <div class="fg">
+            <label class="field-label">Кому</label>
+            <select id="f-assignee">
+              <option value="">— Выберите дизайнера —</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label class="field-label">Дедлайн</label>
+            <input id="f-deadline" type="date">
+          </div>
+          <div class="fg">
+            <label class="field-label">Приоритет</label>
+            <select id="f-priority">
+              <option value="normal">Обычный</option>
+              <option value="high">Высокий</option>
+              <option value="urgent">Срочно!</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="field-label">Описание</label>
+          <textarea id="f-desc" placeholder="Подробности, пожелания, требования…"></textarea>
+        </div>
+        <div class="fg">
+          <label class="field-label">Референсы / ссылки</label>
+          <input id="f-refs" type="text" placeholder="https://… (через запятую)">
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="submitTask()">Отправить задачу</button>
+          <button class="btn-ghost" onclick="resetForm()">Отмена</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- WORKLOAD -->
@@ -477,88 +497,6 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 
 <div class="toast-wrap" id="toasts"></div>
 
-<!-- ═══════════════ TASK WIZARD ═══════════════ -->
-<div id="task-wizard">
-  <div class="wiz-progress-track"><div class="wiz-progress-fill" id="wiz-progress" style="width:25%"></div></div>
-  <div class="wiz-header">
-    <button class="wiz-back" onclick="wizardBack()">← Назад</button>
-    <div class="wiz-type-label" id="wiz-type-label"></div>
-    <div style="width:80px"></div>
-  </div>
-  <div class="wiz-body">
-    <!-- ШАГ 1: Название -->
-    <div class="wiz-step" id="wiz-step-1">
-      <div class="wiz-step-inner">
-        <div class="wiz-step-meta">Шаг 1 из 4 — Название</div>
-        <div class="wiz-step-heading">Как называется задача?</div>
-        <div class="fg">
-          <input id="f-title" type="text" class="wiz-big-input" placeholder="Введите название задачи…">
-        </div>
-        <div class="wiz-foot">
-          <button class="btn-primary wiz-btn-next" onclick="wizardNext()">Далее →</button>
-        </div>
-      </div>
-    </div>
-    <!-- ШАГ 2: Исполнитель и сроки -->
-    <div class="wiz-step hidden" id="wiz-step-2">
-      <div class="wiz-step-inner">
-        <div class="wiz-step-meta">Шаг 2 из 4 — Исполнитель и сроки</div>
-        <div class="wiz-step-heading">Кому и когда?</div>
-        <div class="fg">
-          <label class="field-label">Кому</label>
-          <select id="f-assignee"><option value="">— Выберите дизайнера —</option></select>
-        </div>
-        <div class="form-row">
-          <div class="fg">
-            <label class="field-label">Дедлайн</label>
-            <input id="f-deadline" type="date">
-          </div>
-          <div class="fg">
-            <label class="field-label">Приоритет</label>
-            <select id="f-priority">
-              <option value="normal">Обычный</option>
-              <option value="high">Высокий</option>
-              <option value="urgent">Срочно!</option>
-            </select>
-          </div>
-        </div>
-        <div class="wiz-foot">
-          <button class="btn-primary wiz-btn-next" onclick="wizardNext()">Далее →</button>
-        </div>
-      </div>
-    </div>
-    <!-- ШАГ 3: Специфика типа -->
-    <div class="wiz-step hidden" id="wiz-step-3">
-      <div class="wiz-step-inner">
-        <div class="wiz-step-meta">Шаг 3 из 4 — Детали</div>
-        <div class="wiz-step-heading" id="wiz-step3-heading">Детали задачи</div>
-        <div id="dyn-fields"></div>
-        <div class="wiz-foot">
-          <button class="btn-primary wiz-btn-next" onclick="wizardNext()">Далее →</button>
-        </div>
-      </div>
-    </div>
-    <!-- ШАГ 4: Референсы и описание -->
-    <div class="wiz-step hidden" id="wiz-step-4">
-      <div class="wiz-step-inner">
-        <div class="wiz-step-meta">Шаг 4 из 4 — Финал</div>
-        <div class="wiz-step-heading">Референсы и описание</div>
-        <div class="fg">
-          <label class="field-label">Референс стиля / ссылки</label>
-          <input id="f-refs" type="text" placeholder="https://… (через запятую)">
-        </div>
-        <div class="fg">
-          <label class="field-label">Описание задачи</label>
-          <textarea id="f-desc" placeholder="Подробности, пожелания, требования…" style="min-height:130px"></textarea>
-        </div>
-        <div class="wiz-foot">
-          <button class="btn-primary wiz-btn-next" onclick="submitTask()">Отправить задачу</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- ═══════════════ PRES FULLSCREEN ═══════════════ -->
 <div id="pres-fullscreen-modal" class="pres-fullscreen-overlay hidden" onclick="presFullscreenBgClick(event)">
   <button class="pres-fullscreen-close" onclick="presCloseFullscreen()">✕</button>
@@ -623,8 +561,11 @@ const TYPE_FIELDS = {
         <select id="f-fileformat"><option>MP4</option><option>MOV</option><option>AVI</option><option>GIF</option><option>Other</option></select></div>
     </div>`,
   post:`
-    <div class="fg"><label class="field-label">Платформа</label>
-      <select id="f-platform"><option>Instagram</option><option>ВКонтакте</option><option>Telegram</option><option>TikTok</option><option>Другое</option></select>
+    <div class="form-row">
+      <div class="fg"><label class="field-label">Название задачи</label>
+        <input id="f-title-post" type="text" placeholder="Кратко опишите задачу…"></div>
+      <div class="fg"><label class="field-label">Платформа</label>
+        <select id="f-platform"><option>Instagram</option><option>ВКонтакте</option><option>Telegram</option><option>TikTok</option><option>Другое</option></select></div>
     </div>
     <div class="fg"><label class="field-label">Формат</label>
       <div class="check-group" id="cg-postfmt">
@@ -1020,7 +961,6 @@ let filterMode = 'mine';
 let lastTasks = [];
 let draggedId = null;
 let editingTaskId = null;
-let wizardStep = 1;
 let presFiles = [];
 let presScenario = null;
 let presSlides = [];
@@ -1187,8 +1127,6 @@ window.outdoorEditMockupRemoveAnnot   = outdoorEditMockupRemoveAnnot;
 window.outdoorEditMockupAnnotDragStart = outdoorEditMockupAnnotDragStart;
 window.outdoorEditMockupAnnotDrop     = outdoorEditMockupAnnotDrop;
 window.outdoorEditMockupOpenFullscreen = outdoorEditMockupOpenFullscreen;
-window.wizardNext = wizardNext;
-window.wizardBack = wizardBack;
 
 function toggleCheck(lbl){
   const cb=lbl.querySelector('input');
@@ -1269,7 +1207,6 @@ function logout(){
   if(unsubWorkload){unsubWorkload();unsubWorkload=null;}
   localStorage.removeItem('df_user');
   user=null; selRole=null; selType=null; filterMode='mine'; lastTasks=[];
-  wizardClose();
   document.getElementById('client').classList.add('hidden');
   document.getElementById('designer').classList.add('hidden');
   document.getElementById('login').classList.remove('hidden');
@@ -1307,11 +1244,20 @@ function buildAssigneeSelect(){
 function selectType(id){
   selType=id;
   document.querySelectorAll('.type-card').forEach(c=>c.classList.toggle('sel',c.dataset.type===id));
-  wizardOpen(id);
+  const t=TYPES.find(x=>x.id===id);
+  document.getElementById('form-heading').innerHTML=`${t.e} ${t.n}`;
+  document.getElementById('dyn-fields').innerHTML=TYPE_FIELDS[id]||'';
+  // for 'post' type the title is inside dyn-fields — hide the standalone one
+  document.getElementById('f-title').parentElement.style.display = id==='post' ? 'none' : '';
+  document.getElementById('f-refs').parentElement.style.display = (id==='pres'||id==='landing'||id==='outdoor') ? 'none' : '';
+  document.getElementById('task-form').classList.remove('hidden');
+  document.getElementById('task-form').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
 function resetForm(){
-  wizardClose();
+  selType=null;
+  document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('task-form').classList.add('hidden');
   ['f-title','f-deadline','f-desc','f-refs'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value='';
   });
@@ -1333,99 +1279,14 @@ function resetForm(){
   outdoorEditAnnotCounter=0;
   if(outdoorFullscreen) outdoorCloseFullscreen();
   document.getElementById('dyn-fields').innerHTML='';
-}
-
-// ── WIZARD ──
-const WIZ_PLACEHOLDER = {
-  video:    'Например: Имиджевый ролик для YouTube — 30 сек',
-  post:     'Например: 3 поста для Instagram + 5 сторис к запуску',
-  pres:     'Например: Презентация ЖК «Ботаника Хиллс» — 20 слайдов',
-  landing:  'Например: Лендинг для акции «Квартиры с отделкой»',
-  outdoor:  'Например: Билборд 6×3 м — анонс нового корпуса',
-  print:    'Например: Флаер А5 для выставки — тираж 1000 шт',
-  brand:    'Например: Фирменный стиль агентства недвижимости',
-  edits:    'Например: Правки в презентации — обновить цены и фото',
-  campaign: 'Например: Рекламная кампания запуска ЖК в Instagram + VK',
-};
-
-function addWorkDays(date,n){
-  const d=new Date(date);
-  let added=0;
-  while(added<n){
-    d.setDate(d.getDate()+1);
-    const dow=d.getDay();
-    if(dow!==0&&dow!==6)added++;
-  }
-  return d;
-}
-
-function wizardOpen(typeId){
-  const t=TYPES.find(x=>x.id===typeId);
-  document.getElementById('wiz-type-label').innerHTML=`${t.e} ${t.n}`;
-  document.getElementById('wiz-step3-heading').textContent=`${t.n} — детали`;
-  document.getElementById('f-title').placeholder=WIZ_PLACEHOLDER[typeId]||'Введите название задачи…';
-  document.getElementById('f-title').value='';
-  const dl=addWorkDays(new Date(),3);
-  const yyyy=dl.getFullYear();
-  const mm=String(dl.getMonth()+1).padStart(2,'0');
-  const dd=String(dl.getDate()).padStart(2,'0');
-  document.getElementById('f-deadline').value=`${yyyy}-${mm}-${dd}`;
-  document.getElementById('f-priority').value='normal';
-  document.getElementById('dyn-fields').innerHTML=TYPE_FIELDS[typeId]||'';
-  [1,2,3,4].forEach(n=>document.getElementById('wiz-step-'+n).classList.toggle('hidden',n!==1));
-  wizardStep=1;
-  wizardUpdateProgress();
-  document.getElementById('task-wizard').classList.add('wiz-open');
-}
-
-function wizardClose(){
-  document.getElementById('task-wizard').classList.remove('wiz-open');
-  selType=null;
-  document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('sel'));
-}
-
-function wizardUpdateProgress(){
-  document.getElementById('wiz-progress').style.width=(wizardStep/4*100)+'%';
-}
-
-function wizardGoTo(to,direction){
-  const fromEl=document.getElementById('wiz-step-'+wizardStep);
-  const toEl=document.getElementById('wiz-step-'+to);
-  fromEl.classList.add('hidden');
-  fromEl.classList.remove('wiz-anim-r','wiz-anim-l');
-  toEl.classList.remove('hidden','wiz-anim-r','wiz-anim-l');
-  void toEl.offsetWidth;
-  toEl.classList.add(direction>0?'wiz-anim-r':'wiz-anim-l');
-  toEl.scrollTop=0;
-  wizardStep=to;
-  wizardUpdateProgress();
-}
-
-function wizardNext(){
-  if(wizardStep===1){
-    const title=document.getElementById('f-title').value.trim();
-    if(!title){toast('Введите название задачи','err');return;}
-    wizardGoTo(2,1);
-  } else if(wizardStep===2){
-    const assignee=document.getElementById('f-assignee').value;
-    if(!assignee){toast('Выберите дизайнера','err');return;}
-    wizardGoTo(3,1);
-  } else if(wizardStep===3){
-    wizardGoTo(4,1);
-  }
-}
-
-function wizardBack(){
-  if(wizardStep===1){
-    wizardClose();
-  } else {
-    wizardGoTo(wizardStep-1,-1);
-  }
+  document.getElementById('f-title').parentElement.style.display='';
+  document.getElementById('f-refs').parentElement.style.display='';
 }
 
 // ── SUBMIT TASK ──
 async function submitTask(){
-  const title=document.getElementById('f-title')?.value.trim()||'';
+  const titleEl=document.getElementById('f-title-post')||document.getElementById('f-title');
+  const title=titleEl?.value.trim()||'';
   if(!title){toast('Введите название задачи','err');return;}
   if(!selType){toast('Выберите тип задачи','err');return;}
   const assignee=document.getElementById('f-assignee').value;
