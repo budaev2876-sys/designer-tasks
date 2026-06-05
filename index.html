@@ -543,14 +543,6 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
   <div class="profile-edit-modal" style="position:relative">
     <button onclick="closeProfileEdit()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:18px;color:var(--text-muted);cursor:pointer">✕</button>
     <h3>Редактировать профиль</h3>
-    <div class="profile-photo-row">
-      <div class="profile-photo-circle" id="pe-photo-circle" style="background:var(--accent-lt)">🦕</div>
-      <div>
-        <div style="font-size:13px;font-weight:600;color:var(--text)">Твой динозавр</div>
-        <div class="profile-photo-hint">Выбери ниже чтобы сменить</div>
-      </div>
-    </div>
-    <div class="dino-grid" id="pe-dino-grid" style="margin-bottom:16px"></div>
     <div class="fg" style="margin-bottom:16px">
       <label class="field-label">Имя на доске</label>
       <input type="text" id="pe-name-input">
@@ -1995,11 +1987,6 @@ async function saveDinoPicker(){
 function openProfileEdit(){
   if(!user||user.role!=='designer')return;
   peSelectedColor=user.color;
-  peSelectedDino=user.dino||null;
-  const circle=document.getElementById('pe-photo-circle');
-  const dino=DINOS.find(d=>d.id===user.dino);
-  circle.textContent=dino?dino.emoji:'🦕';
-  circle.style.background=(user.color||'#4285f4')+'22';
   document.getElementById('pe-name-input').value=user.displayName||user.name;
   // Color swatches
   const container=document.getElementById('pe-color-swatches');
@@ -2009,8 +1996,6 @@ function openProfileEdit(){
   document.querySelectorAll('#pe-color-swatches .cswatch').forEach(el=>{
     el.classList.toggle('active',el.dataset.color===user.color);
   });
-  // Dino grid
-  renderDinoGrid('pe-dino-grid','pe');
   document.getElementById('profile-edit-modal').classList.remove('hidden');
 }
 
@@ -2030,7 +2015,7 @@ async function saveProfileEdit(){
   const newName=document.getElementById('pe-name-input').value.trim();
   if(!newName){ toast('Введите имя','err'); return; }
   const color=peSelectedColor||user.color;
-  const dino=peSelectedDino||user.dino;
+  const dino=user.dino;
   try{
     await setDoc(doc(db,'designers',user.name),{displayName:newName,color,dino,lastSeen:serverTimestamp()},{merge:true});
   }catch(e){}
