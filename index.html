@@ -525,7 +525,8 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 
 <!-- Profile edit modal -->
 <div id="profile-edit-modal" class="profile-edit-overlay hidden">
-  <div class="profile-edit-modal">
+  <div class="profile-edit-modal" style="position:relative">
+    <button onclick="closeProfileEdit()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:18px;color:var(--text-muted);cursor:pointer">✕</button>
     <h3>Редактировать профиль</h3>
     <div class="profile-photo-row">
       <div class="profile-photo-circle" id="pe-photo-circle" style="background:var(--accent-lt)">🦕</div>
@@ -549,7 +550,8 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 </div>
 
 <div id="dino-picker-overlay" class="profile-edit-overlay hidden" onclick="if(event.target===this)closeDinoPicker()">
-  <div style="background:var(--card);border-radius:14px;padding:24px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.15)">
+  <div style="background:var(--card);border-radius:14px;padding:24px;width:320px;box-shadow:0 8px 32px rgba(0,0,0,.15);position:relative">
+    <button onclick="closeDinoPicker()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:18px;color:var(--text-muted);cursor:pointer">✕</button>
     <h3 style="font-size:16px;font-weight:700;margin:0 0 16px;color:var(--text)">Выбери динозавра</h3>
     <div class="dino-grid" id="sidebar-dino-grid"></div>
     <div style="display:flex;gap:10px;margin-top:4px">
@@ -656,6 +658,9 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
       </div>
     </div>
     <div class="ds-footer">
+      <div class="ds-logout" onclick="switchDesigner()" style="color:var(--text-muted)">
+        <span style="font-size:16px">🔄</span> Сменить пользователя
+      </div>
       <div class="ds-logout" onclick="logout()">
         <span style="font-size:16px">🚪</span> Выйти
       </div>
@@ -1468,6 +1473,7 @@ window.dAuthSelectColor = dAuthSelectColor;
 window.dAuthSelectDino  = dAuthSelectDino;
 window.peSelectDino     = peSelectDino;
 window.dAuthConfirm     = dAuthConfirm;
+window.switchDesigner = switchDesigner;
 window.openProfileEdit = openProfileEdit;
 window.closeProfileEdit = closeProfileEdit;
 window.openDinoPicker = openDinoPicker;
@@ -1724,15 +1730,11 @@ async function dAuthStep1Next(){
   // First login — show step 2
   pendingDesignerName = name;
   document.getElementById('dauth-display-name').value = name;
-  document.getElementById('dauth-photo-circle').textContent = '🦕';
-  document.getElementById('dauth-photo-circle').style.background = dAuthSelectedDesigner.color+'22';
   document.getElementById('dauth-step1').classList.add('hidden');
   document.getElementById('dauth-step2').classList.remove('hidden');
   document.getElementById('dauth-dot-1').classList.remove('active');
   document.getElementById('dauth-dot-2').classList.add('active');
   pendingDesignerColor = dAuthSelectedDesigner.color;
-  dAuthSelectedDino = null;
-  renderDinoGrid('dauth-dino-grid', 'dauth');
   // Pre-select color
   document.querySelectorAll('#dauth-color-swatches .cswatch').forEach(el=>{
     el.classList.toggle('active', el.dataset.color===dAuthSelectedDesigner.color);
@@ -1758,7 +1760,7 @@ function dAuthSelectColor(color){
 
 function updateDAuthStep2Btn(){
   const btn = document.getElementById('dauth-step2-btn');
-  const ready = pendingDesignerColor && dAuthSelectedDino;
+  const ready = !!pendingDesignerColor;
   btn.style.opacity = ready ? '1' : '.5';
   btn.style.pointerEvents = ready ? 'auto' : 'none';
 }
@@ -1774,9 +1776,6 @@ function renderDinoGrid(containerId, ctx){
 
 function dAuthSelectDino(id){
   dAuthSelectedDino = id;
-  const dino = DINOS.find(d=>d.id===id);
-  document.getElementById('dauth-photo-circle').textContent = dino.emoji;
-  renderDinoGrid('dauth-dino-grid','dauth');
   updateDAuthStep2Btn();
 }
 
@@ -1845,6 +1844,18 @@ function showDesigner(){
     b.classList.toggle('active', b.dataset.f===filterMode);
   });
   subscribeKanban();
+}
+
+function switchDesigner(){
+  if(unsubTasks){unsubTasks();unsubTasks=null;}
+  if(unsubDesigners){unsubDesigners();unsubDesigners=null;}
+  closeTaskModal();
+  localStorage.removeItem('df_user');
+  user=null; selRole=null; filterMode='all'; lastTasks=[];
+  allDesigners=[...DESIGNERS];
+  document.getElementById('designer').classList.add('hidden');
+  document.getElementById('login').classList.remove('hidden');
+  setTimeout(()=>openDesignerAuth(), 100);
 }
 
 function logout(){
