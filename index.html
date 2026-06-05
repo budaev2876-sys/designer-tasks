@@ -2222,7 +2222,17 @@ function subscribeClientKanban(){
   unsubTasks = onSnapshot(q, snap=>{
     lastTasks = [];
     snap.forEach(d => lastTasks.push({id:d.id,...d.data()}));
-    renderKanban(lastTasks);
+    const cols = {new:[],progress:[],review:[],done:[]};
+    lastTasks.forEach(t => {
+      const s = t.status==='wip'?'progress':t.status||'new';
+      if(cols[s]) cols[s].push(t); else cols.new.push(t);
+    });
+    ['new','progress','review','done'].forEach(s=>{
+      const el = document.getElementById('col-'+s+'-c');
+      const cnt = document.getElementById('cnt-'+s+'-c');
+      if(el) el.innerHTML = cols[s].length ? cols[s].map(taskCard).join('') : emptyCol();
+      if(cnt) cnt.textContent = cols[s].length;
+    });
   });
 }
 
