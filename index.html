@@ -129,6 +129,8 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 /* ── CLIENT ── */
 #client{height:100vh;display:flex;flex-direction:column}
 .tab-content{flex:1;padding:28px 24px;max-width:960px;margin:0 auto;width:100%}
+#tab-workload{display:flex;flex-direction:column;flex:1;height:calc(100vh - 52px);overflow:hidden;padding:0}
+#tab-workload .kanban{flex:1;height:100%;overflow-x:auto}
 .section-title{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:20px}
 
 /* hero */
@@ -635,7 +637,7 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
   </div>
 
   <!-- WORKLOAD / CLIENT KANBAN -->
-  <div id="tab-workload" class="tab-content hidden" style="flex:1;overflow:hidden;padding:0">
+  <div id="tab-workload" class="hidden" style="flex:1;overflow:hidden;padding:0">
     <div class="kanban" id="kanban-board-client">
       <div class="kcol">
         <div class="kcol-head"><div class="kcol-stripe" style="background:#4285f4"></div><span class="kcol-label">НОВОЕ</span><span class="kcol-count" id="cnt-new-c">0</span></div>
