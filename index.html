@@ -636,7 +636,7 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 
   <!-- WORKLOAD / CLIENT KANBAN -->
   <div id="tab-workload" class="tab-content hidden">
-    <div id="client-kanban" class="kanban" style="padding:20px"></div>
+    <div class="kanban" id="kanban-board-client"></div>
   </div>
 </div>
 
@@ -2205,54 +2205,8 @@ function subscribeClientKanban(){
   unsubTasks = onSnapshot(q, snap=>{
     lastTasks = [];
     snap.forEach(d => lastTasks.push({id:d.id,...d.data()}));
-    renderClientKanban(lastTasks);
+    renderKanban(lastTasks, 'kanban-board-client');
   });
-}
-
-function renderClientKanban(tasks){
-  const board = document.getElementById('client-kanban');
-  if(!board) return;
-  const cols = [
-    {id:'new',    label:'НОВОЕ',      color:'#4285f4'},
-    {id:'wip',    label:'В РАБОТЕ',   color:'#fbbc04'},
-    {id:'review', label:'НА ПРАВКАХ', color:'#ea4335'},
-    {id:'done',   label:'ГОТОВО',     color:'#34a853'},
-  ];
-  board.innerHTML = cols.map(col=>{
-    const colTasks = tasks.filter(t=>t.status===col.id);
-    const cards = colTasks.map(t=>{
-      const dlClass = t.deadline ? getDlClass(t.deadline) : '';
-      const dlTxt = t.deadline ? fmtDl(t.deadline) : 'Без дедлайна';
-      const dColor = getDesignerColor(t.assignedTo);
-      const dinoEmoji = getDesignerDino(t.assignedTo);
-      const pBadge = t.priority==='urgent'?'<span class="pbadge pbadge-urgent">Срочный</span>':
-                     t.priority==='high'?'<span class="pbadge pbadge-high">Высокий</span>':
-                     '<span class="pbadge pbadge-normal">Обычный</span>';
-      return `<div class="tcard" style="border-color:${dColor};background:${hexToRgba(dColor,.05)};cursor:pointer" onclick="openTaskModal('${t.id}')">
-        <div class="tcard-row1">
-          <div class="tcard-type">${esc(t.typeEmoji||'📋')} ${esc(t.typeName||'')}</div>
-          ${pBadge}
-        </div>
-        <div class="tcard-title">${esc(t.title)}</div>
-        <div class="tcard-divider"></div>
-        <div class="tcard-row3">
-          <div class="tcard-designer">
-            <div class="dino-avatar" style="background:${dColor}22">${dinoEmoji}</div>
-            ${esc(t.assignedTo||'—')}
-          </div>
-          <div class="tcard-deadline ${dlClass}">📅 ${dlTxt}</div>
-        </div>
-      </div>`;
-    }).join('') || '<div class="kcol-empty">Нет задач</div>';
-    return `<div class="kcol">
-      <div class="kcol-head">
-        <div class="kcol-stripe" style="background:${col.color}"></div>
-        <span class="kcol-label">${col.label}</span>
-        <span class="kcol-count">${colTasks.length}</span>
-      </div>
-      <div class="kcol-body">${cards}</div>
-    </div>`;
-  }).join('');
 }
 
 // ── WORKLOAD ──
@@ -2323,13 +2277,39 @@ function subscribeKanban(){
   });
 }
 
-function renderKanban(allTasks){
-  const tasks=filterMode==='mine'
+function renderKanban(allTasks, boardId){
+  const tasks=filterMode==='mine'&&!boardId
     ?allTasks.filter(t=>t.assignedTo===user.name||(!t.assignedTo&&t.status==='new'))
     :allTasks;
 
   const cols={new:[],progress:[],review:[],done:[]};
   tasks.forEach(t=>{if(cols[t.status])cols[t.status].push(t);else cols.new.push(t);});
+
+  if(boardId){
+    const board=document.getElementById(boardId);
+    if(!board) return;
+    const colDefs=[
+      {id:'new',      label:'НОВОЕ',      color:'#4285f4'},
+      {id:'progress', label:'В РАБОТЕ',   color:'#fbbc04'},
+      {id:'review',   label:'НА ПРАВКАХ', color:'#ea4335'},
+      {id:'done',     label:'ГОТОВО',     color:'#34a853'},
+    ];
+    board.innerHTML=colDefs.map(col=>{
+      const cards=cols[col.id].length
+        ?cols[col.id].map(taskCard).join('')
+        :emptyCol();
+      return `<div class="kcol">
+        <div class="kcol-head">
+          <div class="kcol-stripe" style="background:${col.color}"></div>
+          <span class="kcol-label">${col.label}</span>
+          <span class="kcol-count">${cols[col.id].length}</span>
+        </div>
+        <div class="kcol-body">${cards}</div>
+      </div>`;
+    }).join('');
+    return;
+  }
+
   ['new','progress','review','done'].forEach(s=>{
     document.getElementById('col-'+s).innerHTML=
       cols[s].length?cols[s].map(taskCard).join(''):emptyCol();
