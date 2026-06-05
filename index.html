@@ -496,12 +496,27 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
       <div class="dauth-dot" id="dauth-dot-2"></div>
     </div>
 
+    <!-- Step 0: create account -->
+    <div id="dauth-step0" class="hidden">
+      <h3>Создать аккаунт</h3>
+      <p class="dauth-sub">Введи имя — оно будет видно на доске</p>
+      <div class="fg" style="margin-bottom:16px">
+        <label class="field-label">Имя</label>
+        <input type="text" id="dauth-new-name" placeholder="Например: Маша">
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-ghost btn-sm" style="flex:1;justify-content:center" onclick="dAuthBackToList()">← Назад</button>
+        <button class="btn-primary" style="flex:1;justify-content:center" onclick="dAuthCreateAccount()">Далее →</button>
+      </div>
+    </div>
+
     <!-- Step 1: pick designer -->
     <div id="dauth-step1">
       <h3>Выбери себя из списка</h3>
       <p class="dauth-sub">Нажми на своё имя чтобы продолжить</p>
       <div class="designer-list" id="dauth-designer-list"></div>
       <div class="dauth-error" id="dauth-step1-error"></div>
+      <button class="btn-ghost btn-sm" style="width:100%;justify-content:center;margin-bottom:8px" onclick="dAuthShowCreate()">+ Создать аккаунт</button>
       <button class="btn-primary" style="width:100%;justify-content:center;margin-top:4px" onclick="dAuthStep1Next()">Продолжить →</button>
     </div>
 
@@ -824,7 +839,7 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js';
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, query, orderBy, serverTimestamp, getDoc, increment }
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, query, orderBy, serverTimestamp, getDoc, getDocs, increment }
   from 'https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js';
 
 const db = getFirestore(initializeApp({
@@ -837,14 +852,7 @@ const db = getFirestore(initializeApp({
 }));
 
 // ── CONSTANTS ──
-const DESIGNERS = [
-  {id:'artem',    name:'Артём',    color:'#4285f4'},
-  {id:'masha',    name:'Маша',     color:'#34a853'},
-  {id:'dima',     name:'Дима',     color:'#9c27b0'},
-  {id:'nastya',   name:'Настя',    color:'#f57c00'},
-  {id:'katya',    name:'Катя',     color:'#e91e63'},
-  {id:'sasha',    name:'Саша',     color:'#00897b'},
-];
+const DESIGNERS = [];
 
 const TYPES = [
   {id:'video',    e:'🎬', n:'Видео',             desc:'Ролики, анимация, видеомонтаж',                color:'#e53935'},
@@ -1471,6 +1479,9 @@ window.dAuthSelectDesigner = dAuthSelectDesigner;
 window.dAuthStep1Next = dAuthStep1Next;
 window.dAuthSelectColor = dAuthSelectColor;
 window.dAuthSelectDino  = dAuthSelectDino;
+window.dAuthShowCreate  = dAuthShowCreate;
+window.dAuthBackToList  = dAuthBackToList;
+window.dAuthCreateAccount = dAuthCreateAccount;
 window.peSelectDino     = peSelectDino;
 window.dAuthConfirm     = dAuthConfirm;
 window.switchDesigner = switchDesigner;
@@ -1680,6 +1691,7 @@ function openDesignerAuth(){
   dAuthSelectedDesigner = null;
   renderDAuthDesignerList();
   renderDAuthColorSwatches();
+  document.getElementById('dauth-step0').classList.add('hidden');
   document.getElementById('dauth-step1').classList.remove('hidden');
   document.getElementById('dauth-step2').classList.add('hidden');
   document.getElementById('dauth-dot-1').classList.add('active');
@@ -1688,23 +1700,40 @@ function openDesignerAuth(){
   document.getElementById('designer-auth-modal').classList.remove('hidden');
 }
 
-function renderDAuthDesignerList(){
+async function renderDAuthDesignerList(){
   const list = document.getElementById('dauth-designer-list');
-  list.innerHTML = allDesigners.map(d=>`
-    <div class="dp-card" data-id="${d.id}" onclick="dAuthSelectDesigner('${d.id}')">
-      <div class="avatar" style="background:${d.color};width:32px;height:32px;font-size:12px">${d.name[0].toUpperCase()}</div>
-      <div>
-        <div class="dp-name">${d.name}</div>
-      </div>
-      <span class="dp-check">✓</span>
-    </div>`).join('');
+  list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px">Загрузка...</div>';
+  try {
+    const snap = await getDocs(collection(db,'designers'));
+    const designers = [];
+    snap.forEach(d => designers.push({id:d.id, ...d.data()}));
+    if(designers.length === 0){
+      list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px">Нет зарегистрированных дизайнеров</div>';
+      return;
+    }
+    list.innerHTML = designers.map(d=>`
+      <div class="dp-card" data-id="${d.name}" onclick="dAuthSelectDesigner('${d.name}')">
+        <div class="avatar" style="background:${d.color||'#4285f4'};width:32px;height:32px;font-size:14px">${(d.displayName||d.name)[0].toUpperCase()}</div>
+        <div>
+          <div class="dp-name">${d.displayName||d.name}</div>
+        </div>
+        <span class="dp-check">✓</span>
+      </div>`).join('');
+  } catch(e){
+    list.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px">Ошибка загрузки</div>';
+  }
 }
 
 function dAuthSelectDesigner(id){
-  dAuthSelectedDesigner = allDesigners.find(d=>d.id===id);
-  document.querySelectorAll('#dauth-designer-list .dp-card').forEach(c=>{
-    c.classList.toggle('sel', c.dataset.id===id);
+  const cards = document.querySelectorAll('#dauth-designer-list .dp-card');
+  cards.forEach(c => {
+    if(c.dataset.id === id){
+      c.classList.add('sel');
+    } else {
+      c.classList.remove('sel');
+    }
   });
+  dAuthSelectedDesigner = {id: id.toLowerCase(), name: id};
   document.getElementById('dauth-step1-error').textContent='';
 }
 
@@ -1739,6 +1768,41 @@ async function dAuthStep1Next(){
   document.querySelectorAll('#dauth-color-swatches .cswatch').forEach(el=>{
     el.classList.toggle('active', el.dataset.color===dAuthSelectedDesigner.color);
   });
+  updateDAuthStep2Btn();
+}
+
+function dAuthShowCreate(){
+  document.getElementById('dauth-step1').classList.add('hidden');
+  document.getElementById('dauth-step0').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('dauth-new-name').focus(), 50);
+}
+
+function dAuthBackToList(){
+  document.getElementById('dauth-step0').classList.add('hidden');
+  document.getElementById('dauth-step1').classList.remove('hidden');
+}
+
+async function dAuthCreateAccount(){
+  const name = document.getElementById('dauth-new-name').value.trim();
+  if(!name){ toast('Введи имя','err'); return; }
+  try {
+    const snap = await getDoc(doc(db,'designers',name));
+    if(snap.exists()){ toast('Такое имя уже занято','err'); return; }
+  } catch(e){}
+  pendingDesignerName = name;
+  dAuthSelectedDesigner = {id: name.toLowerCase(), name, color:'#4285f4'};
+  document.getElementById('dauth-new-name').value = '';
+  document.getElementById('dauth-step0').classList.add('hidden');
+  document.getElementById('dauth-step2').classList.remove('hidden');
+  document.getElementById('dauth-dot-1').classList.remove('active');
+  document.getElementById('dauth-dot-2').classList.add('active');
+  document.getElementById('dauth-display-name').value = name;
+  pendingDesignerColor = '#4285f4';
+  renderDAuthColorSwatches();
+  document.querySelectorAll('#dauth-color-swatches .cswatch').forEach(el=>{
+    el.classList.toggle('active', el.dataset.color==='#4285f4');
+  });
+  dAuthSelectedDino = null;
   updateDAuthStep2Btn();
 }
 
