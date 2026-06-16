@@ -261,7 +261,7 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 .tcard-activity-comments svg{stroke:#5B4CF5}
 
 /* ── TASK MODAL ── */
-.task-modal-box{background:#FFFFFF;border-radius:16px;width:100%;max-width:860px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.22);animation:scaleIn .2s ease;overflow:hidden}
+.task-modal-box{background:#FFFFFF;border-radius:16px;width:95vw;max-width:980px;height:88vh;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.22);animation:scaleIn .2s ease;overflow:hidden}
 .tm-header{position:sticky;top:0;z-index:10;background:#FFFFFF;display:flex;align-items:flex-start;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #F0F0F3;flex-shrink:0;gap:16px}
 .tm-type-tag{display:flex;align-items:center;gap:6px;margin-bottom:8px}
 .tm-type-label{font-size:10px;font-weight:700;color:#9095A6;text-transform:uppercase;letter-spacing:.6px}
@@ -270,8 +270,9 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 .tm-meta-row .pbadge{padding:4px 8px;border-radius:15px;font-size:10px;font-weight:700}
 .tm-header-actions{display:flex;align-items:center;gap:12px;flex-shrink:0;margin-top:2px}
 .tm-status-select-wrap{position:relative}
-.tm-status-trigger{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1px solid #E5E7EB;background:#fff;font-size:13px;font-weight:600;color:#374151;cursor:pointer;font-family:inherit}
-.tm-status-trigger svg{width:14px;height:14px;stroke:#374151;flex-shrink:0}
+.tm-status-trigger{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;border:1.5px solid #E5E7EB;background:#FFFFFF;font-size:13px;font-weight:600;color:#374151;cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s}
+.tm-status-trigger:hover{border-color:#5B4CF5;color:#5B4CF5}
+.tm-status-trigger svg{width:14px;height:14px;stroke:currentColor;flex-shrink:0}
 .tm-status-dropdown{position:absolute;top:calc(100% + 4px);right:0;background:#FFFFFF;border-radius:10px;border:1px solid #E5E7EB;box-shadow:0 4px 12px rgba(0,0,0,.08);z-index:100;min-width:180px;overflow:hidden}
 .tm-status-option{padding:10px 14px;font-size:13px;font-weight:500;cursor:pointer;color:#374151}
 .tm-status-option:hover{background:#F4F5F7}
@@ -279,7 +280,7 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 .tm-close-btn{background:#F4F5F7;border:none;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;color:var(--text-dim);transition:background .15s;flex-shrink:0;line-height:1}
 .tm-close-btn:hover{background:#E5E7EB;color:var(--text)}
 .tm-body{display:grid;grid-template-columns:1fr 280px;gap:0;flex:1;overflow:hidden;min-height:0}
-.tm-main{padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:20px}
+.tm-main{padding:24px;overflow-y:auto;height:100%;display:flex;flex-direction:column;gap:20px}
 .tm-meta-block{display:flex;gap:24px;align-items:flex-start}
 .tm-meta-item{flex:1;min-width:0}
 .tm-field-label{font-size:11px;font-weight:600;color:#9095A6;text-transform:uppercase;letter-spacing:.6px}
@@ -300,7 +301,7 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 .tm-tz-chevron.open{transform:rotate(180deg)}
 .tm-tz-content{display:none;margin-top:10px}
 .tm-tz-content.open{display:block}
-.tm-sidebar{padding:20px;display:flex;flex-direction:column;border-left:1px solid #F0F0F3;overflow:hidden;min-height:0}
+.tm-sidebar{padding:20px;height:100%;display:flex;flex-direction:column;border-left:1px solid #F0F0F3;overflow:hidden;min-height:0}
 .tm-sidebar-title{font-size:12px;font-weight:700;color:#0D0E14;margin-bottom:12px;flex-shrink:0}
 .tm-activity-feed{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;min-height:0}
 .tm-activity-empty{text-align:center;font-size:13px;color:#9095A6;padding:24px 0}
@@ -2737,7 +2738,6 @@ function openTaskModal(id){
   saveSeenData();
 
   const dColor=getDesignerColor(t.assignedTo);
-  const dInitial=t.assignedTo?t.assignedTo[0].toUpperCase():'?';
   const isDesigner=user.role==='designer';
   const canEdit=isDesigner||(user.name===t.clientName);
 
@@ -2763,7 +2763,7 @@ function openTaskModal(id){
     :`<span class="sbadge s-${t.status}">${slabel(t.status)}</span>`;
 
   document.getElementById('tm-assignee-val').innerHTML=`
-    <div class="avatar" style="background:${dColor}">${dInitial}</div>
+    <div class="dino-avatar" style="width:28px;height:28px;background:${dColor}22">${getDesignerDino(t.assignedTo)}</div>
     <span style="font-size:14px;font-weight:500;color:#0D0E14">${esc(t.assignedTo||'—')}</span>`;
 
   document.getElementById('tm-deadline-wrap').innerHTML=canEdit
