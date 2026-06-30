@@ -42,8 +42,8 @@ select option{background:var(--surface);color:var(--text)}
 input:focus-visible,select:focus-visible,textarea:focus-visible,
 .pres-block-content:focus-visible,.pres-annot-text:focus-visible{outline:none}
 textarea{resize:vertical;min-height:80px}
-label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
-.fg{margin-bottom:16px}
+label.field-label{display:block;color:var(--text-muted);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:8px}
+.fg{margin-bottom:20px}
 .fg:last-child{margin-bottom:0}
 .btn-primary{background:var(--accent);color:#fff;padding:10px 22px;border-radius:20px;font-weight:500;box-shadow:0 1px 2px rgba(91,76,245,.3)}
 .btn-primary:hover{background:var(--accent-dark);box-shadow:var(--sh-md);transform:translateY(-1px)}
@@ -164,19 +164,20 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 .type-card-arrow{position:absolute;bottom:20px;right:20px;font-size:18px;font-weight:700;line-height:1;color:var(--text-muted)}
 
 /* form card */
-.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;box-shadow:var(--sh);animation:fadeIn .3s ease}
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:32px;box-shadow:var(--sh-md);animation:fadeIn .3s ease}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.form-title{font-size:17px;font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:8px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
-.form-actions{display:flex;gap:10px;margin-top:20px}
+.form-title{font-size:22px;font-weight:700;color:var(--text);margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border-secondary);display:flex;align-items:center;gap:10px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.form-actions{display:flex;gap:12px;margin-top:8px;padding-top:20px;border-top:1px solid var(--border-secondary)}
 
 /* checkbox tags */
-.check-group{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
-.check-tag{display:flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--border);border-radius:100px;padding:5px 12px;cursor:pointer;font-size:12px;transition:all .15s;user-select:none;white-space:nowrap;color:var(--text-dim)}
+.check-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.check-tag{display:flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--border);border-radius:100px;padding:7px 14px;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s;user-select:none;white-space:nowrap;color:var(--text-dim)}
+.check-tag:hover{border-color:var(--accent);color:var(--text)}
 .check-tag input{display:none}
-.check-tag.checked{background:var(--accent-lt);border-color:var(--accent);color:var(--accent)}
+.check-tag.checked{background:var(--accent-lt);border-color:var(--accent);color:var(--accent);font-weight:600}
 
 /* ── PRINT CATEGORY CARDS ── */
 .print-cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:4px}
