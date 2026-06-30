@@ -356,6 +356,8 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 .tm-btn-primary:hover{background:var(--accent-dark)}
 .tm-btn-ghost{padding:10px 24px;border-radius:8px;background:#FFFFFF;border:1px solid #E5E7EB;color:#6B7280;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
 .tm-btn-ghost:hover{background:#F4F5F7}
+.tm-btn-archive{padding:8px 16px;border-radius:8px;background:#FEE2E2;border:none;color:#DC2626;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s}
+.tm-btn-archive:hover{background:#FECACA}
 
 /* ── COLOR PICKER ── */
 .color-picker-box{background:#fff;border-radius:16px;padding:36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.22);animation:scaleIn .2s ease;text-align:center}
@@ -1593,6 +1595,7 @@ window.closeTaskEditOverlay  = closeTaskEditOverlay;
 window.openTaskModal         = openTaskModal;
 window.closeTaskModal        = closeTaskModal;
 window.saveTaskModal         = saveTaskModal;
+window.archiveTask           = archiveTask;
 window.sendComment           = sendComment;
 window.tmChangeStatus        = tmChangeStatus;
 window.toggleScard   = toggleScard;
@@ -2407,8 +2410,8 @@ function subscribeKanban(){
 
 function renderKanban(allTasks, boardId){
   const tasks=filterMode==='mine'&&!boardId
-    ?allTasks.filter(t=>t.assignedTo===user.name||(!t.assignedTo&&t.status==='new'))
-    :allTasks;
+    ?allTasks.filter(t=>!t.closed&&(t.assignedTo===user.name||(!t.assignedTo&&t.status==='new')))
+    :allTasks.filter(t=>!t.closed);
 
   const cols={new:[],progress:[],review:[],done:[]};
   tasks.forEach(t=>{if(cols[t.status])cols[t.status].push(t);else cols.new.push(t);});
@@ -2955,7 +2958,11 @@ function openTaskModal(id){
   document.getElementById('tm-footer').innerHTML=canEdit
     ?`<button class="tm-btn-primary" onclick="saveTaskModal()">Сохранить</button>
       <button class="tm-btn-ghost" onclick="closeTaskModal()">Закрыть</button>
-      ${user.name===t.clientName?`<button class="tm-btn-ghost" style="margin-left:auto;padding:8px 14px;font-size:13px" onclick="openTaskEdit(event,'${id}')">✏️ Полное редактирование</button>`:''}`.trim()
+      ${user.name===t.clientName?`
+        <span style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <button class="tm-btn-ghost" style="padding:8px 14px;font-size:13px" onclick="openTaskEdit(event,'${id}')">✏️ Полное редактирование</button>
+          <button class="tm-btn-archive" onclick="archiveTask()">✕ Закрыть задачу</button>
+        </span>`:''}`.trim()
     :`<button class="tm-btn-ghost" style="margin-left:auto" onclick="closeTaskModal()">Закрыть</button>`;
 
   document.getElementById('task-modal').classList.remove('hidden');
@@ -2990,6 +2997,18 @@ function closeTaskModal(e){
   if(taskModalUnsubComments){taskModalUnsubComments();taskModalUnsubComments=null;}
   taskModalId=null;
   tmLastChangelog=[];tmLastComments=[];
+}
+
+async function archiveTask(){
+  if(!taskModalId)return;
+  if(!confirm('Закрыть задачу? Она исчезнет с доски для всех участников.'))return;
+  try{
+    await updateDoc(doc(db,'tasks',taskModalId),{closed:true});
+    delete seenData[taskModalId];
+    saveSeenData();
+    closeTaskModal();
+    toast('Задача закрыта');
+  }catch(e){toast('Ошибка: '+e.message,'err');}
 }
 
 function subscribeTaskModalData(taskId){
