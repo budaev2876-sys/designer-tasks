@@ -73,13 +73,12 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 .dauth-modal h3{font-size:18px;font-weight:700;margin:0 0 4px;color:var(--text)}
 .dauth-modal .dauth-sub{font-size:13px;color:var(--text-muted);margin:0 0 20px}
 .dauth-steps{display:flex;gap:5px;margin-bottom:20px}
-.dauth-dot{height:5px;border-radius:3px;background:var(--border);transition:all .2s}
+.dauth-dot{width:6px;height:5px;border-radius:3px;background:var(--border);transition:all .2s}
 .dauth-dot.active{background:var(--accent);width:18px}
-.dauth-dot{width:6px}
 
 /* designer list in modal */
 .designer-list{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
-.dp-card{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .18s;background:var(--card)}
+.dp-card{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .18s;background:var(--card)}
 .dp-card:hover{border-color:var(--accent);background:var(--accent-lt)}
 .dp-card.sel{border-color:var(--accent);background:var(--accent-lt)}
 .dp-card .dp-check{margin-left:auto;color:var(--accent);opacity:0;transition:opacity .15s;font-size:16px}
@@ -96,19 +95,21 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 /* dino picker */
 .dino-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
 .dino-opt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;font-size:22px}
-.dino-opt span{font-size:10px;color:var(--text-muted)}
+.dino-opt span{font-size:12px;color:var(--text-muted)}
 .dino-opt:hover{border-color:var(--accent);background:var(--accent-lt)}
 .dino-opt.active{border-color:var(--accent);background:var(--accent-lt)}
 .dino-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .color-swatches{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
-.cswatch{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .15s;position:relative}
-.cswatch.active{border-color:rgba(0,0,0,.25);box-shadow:inset 0 0 0 3px #fff}
+.cswatch{width:40px;height:40px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all .15s;position:relative}
+.cswatch.active{border-color:rgba(0,0,0,.25);box-shadow:inset 0 0 0 3px var(--surface)}
 .display-name-field{margin-bottom:20px}
 
 /* profile edit modal */
 .profile-edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:300;animation:fadeIn .15s ease}
 .profile-edit-modal{background:var(--card);border-radius:14px;padding:28px;width:360px;box-shadow:0 8px 32px rgba(0,0,0,.15);animation:fadeUp .18s ease}
 .profile-edit-modal h3{font-size:18px;font-weight:700;margin:0 0 20px;color:var(--text)}
+.modal-close-btn{position:absolute;top:10px;right:10px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:none;border:none;font-size:17px;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:all .15s;flex-shrink:0}
+.modal-close-btn:hover{background:var(--bg);color:var(--text)}
 
 /* ── HEADER ── */
 .app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,.08)}
@@ -563,7 +564,7 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 <!-- Designer auth modal -->
 <div id="designer-auth-modal" class="dauth-overlay hidden">
   <div class="dauth-modal" style="position:relative">
-    <button onclick="document.getElementById('designer-auth-modal').classList.add('hidden')" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:18px;color:var(--text-muted);cursor:pointer;line-height:1;padding:4px">✕</button>
+    <button class="modal-close-btn" onclick="document.getElementById('designer-auth-modal').classList.add('hidden')">✕</button>
     <div class="dauth-steps">
       <div class="dauth-dot active" id="dauth-dot-1"></div>
       <div class="dauth-dot" id="dauth-dot-2"></div>
@@ -614,7 +615,7 @@ label.field-label{display:block;color:var(--text-dim);font-size:11px;font-weight
 <!-- Profile edit modal -->
 <div id="profile-edit-modal" class="profile-edit-overlay hidden">
   <div class="profile-edit-modal" style="position:relative">
-    <button onclick="closeProfileEdit()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:18px;color:var(--text-muted);cursor:pointer">✕</button>
+    <button class="modal-close-btn" onclick="closeProfileEdit()">✕</button>
     <h3>Редактировать профиль</h3>
     <div class="profile-photo-row">
       <div class="profile-photo-circle" id="pe-photo-circle" style="background:var(--accent-lt)">🦕</div>
