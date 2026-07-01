@@ -123,7 +123,8 @@ label.field-label{display:block;color:var(--text-muted);font-size:11px;font-weig
 
 /* ── HEADER ── */
 .app-header{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,.08)}
-.app-logo{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.app-logo{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.02em;display:flex;align-items:center;gap:8px;transition:opacity .15s}
+.app-logo:hover{opacity:.75}
 .app-logo span{color:var(--accent)}
 .header-right{display:flex;align-items:center;gap:10px}
 .user-pill{display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:100px;padding:5px 14px;font-size:13px;border:1px solid var(--border)}
@@ -672,7 +673,7 @@ label.field-label{display:block;color:var(--text-muted);font-size:11px;font-weig
 <!-- ═══════════════ CLIENT ═══════════════ -->
 <div id="client" class="hidden">
   <header class="app-header">
-    <div class="app-logo"><div class="ds-logo-icon">✦</div>Работа <span>дизайнеров</span></div>
+    <div class="app-logo" onclick="clientGoHome()" style="cursor:pointer" title="На главную"><div class="ds-logo-icon">✦</div>Работа <span>дизайнеров</span></div>
     <div class="header-right">
       <div class="user-pill">
         <div class="avatar" id="c-av" style="background:var(--accent)">?</div>
@@ -1594,6 +1595,7 @@ window.pickRole     = pickRole;
 window.doLogin      = doLogin;
 window.doDesignerLogin = ()=>{};
 window.logout       = logout;
+window.clientGoHome = clientGoHome;
 window.switchTab    = switchTab;
 window.subscribeClientKanban = subscribeClientKanban;
 window.selectType   = selectType;
@@ -2068,6 +2070,11 @@ function logout(){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab==='create'));
   document.getElementById('tab-create').classList.remove('hidden');
   document.getElementById('tab-workload').classList.add('hidden');
+}
+
+function clientGoHome(){
+  localStorage.removeItem('df_client_name');
+  logout();
 }
 
 // ── KANBAN FILTER ──
