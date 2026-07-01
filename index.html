@@ -216,7 +216,8 @@ label.field-label{display:block;color:var(--text-muted);font-size:11px;font-weig
 /* ── KANBAN ── */
 #designer{height:100vh;display:flex;flex-direction:row}
 .designer-sidebar{width:240px;min-width:240px;height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:relative;z-index:10}
-.ds-logo{padding:20px 16px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-secondary)}
+.ds-logo{padding:20px 16px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-secondary);cursor:pointer;transition:opacity .15s}
+.ds-logo:hover{opacity:.75}
 .ds-logo-icon{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent) 0%,#7C3AED 100%);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;box-shadow:0 4px 10px rgba(91,76,245,.35)}
 .ds-logo-text{font-size:16px;font-weight:900;color:var(--text);letter-spacing:-.03em;line-height:1}
 .ds-logo-text span{color:var(--accent)}
@@ -765,7 +766,7 @@ label.field-label{display:block;color:var(--text-muted);font-size:11px;font-weig
 <div id="designer" class="hidden">
   <!-- Sidebar -->
   <div class="designer-sidebar">
-    <div class="ds-logo">
+    <div class="ds-logo" onclick="logout()" title="На главную">
       <div class="ds-logo-icon">✦</div>
       <div class="ds-logo-text">Работа <span>дизайнеров</span></div>
     </div>
